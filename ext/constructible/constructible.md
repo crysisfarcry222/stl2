@@ -154,30 +154,27 @@ In the "Proposed Resolution" that follows, there are editorial notes that highli
 > > <tt>&nbsp;&nbsp;&nbsp;&nbsp;<del>{ &amp;ct } -&gt; Same&lt;const T\*&gt;; // not required to be equality preserving</del></tt>
 > > <tt>&nbsp;&nbsp;&nbsp;&nbsp;<del>delete p;</del></tt>
 > > <tt>&nbsp;&nbsp;&nbsp;&nbsp;<del>delete[] p;</del></tt>
-> > <tt>&nbsp;&nbsp;<ins>return is_nothrow_destructible&lt;T&gt;::value &amp;&amp; // see below</ins></tt>
-> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;<ins>requires(T&amp; t, const remove_reference_t&lt;T&gt;&amp; ct) {</ins></tt>
-> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<ins>{ &t } -&gt; Same&lt;remove_reference_t&lt;T&gt;\*&gt;&amp;&amp;; // not required to be equality preserving</ins></tt>
-> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<ins>{ &ct } -&gt; Same&lt;const remove_reference_t&lt;T&gt;\*&gt;&amp;&amp;; // not required to be equality preserving</ins></tt>
-> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;};</tt>
+> > <tt>&nbsp;&nbsp;<ins>return is_nothrow_destructible&lt;T&gt;::value; // see below</ins></tt>
+> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;<del>};</del></tt>
 > > <tt>}</tt>
 >
-> 2 The expression requirement `&ct` does not require implicit expression variants.
+> &#8203;<del>2 The expression requirement `&ct` does not require implicit expression variants.</del>
 >
-> 3 Given a (possibly `const`) lvalue `t` of type <tt><ins>remove_reference_t&lt;</ins>T<ins>&gt;</ins></tt><del> and pointer `p` of type `T*`</del>,  `Destructible<T>()` is satisfied if and only if
+> &#8203;<del>3 Given a (possibly `const`) lvalue `t` of type <tt>T</tt> and pointer `p` of type `T*`,  `Destructible<T>()` is satisfied if and only if</del>
 >
 > > &#8203;<del>(3.1) -- After evaluating the expression `t.~T()`, `delete p`, or `delete[] p`, all resources owned by the denoted object(s) are reclaimed.</del>
 > >
-> > (3.<del>2</del><ins>1</ins>) -- `&t == addressof(t)`.
+> > &#8203;<del>(3.2) -- `&t == addressof(t)`.</del>
 > >
-> > (3.<del>3</del><ins>2</ins>) -- The expression `&t` is non-modifying.
+> > &#8203;<del>(3.3) -- The expression `&t` is non-modifying.</del>
 >
-> &#8203;<ins>4 There need not be any subsumption relationship between `Destructible<T>()` and `is_nothrow_destructible<T>::value`.
+> &#8203;<ins>2 There need not be any subsumption relationship between `Destructible<T>()` and `is_nothrow_destructible<T>::value`.
 
 <ednote>[_Editor's note:_ In the minutes of Ranges TS wording review at Kona on 2015-08-14, the following is recorded:</ednote>
 
 <blockquote><ednote>In 19.4.1 Alisdair asks whether reference types are Destructible. Eric pointed to <a href="https://github.com/ericniebler/stl2/issues/70">issue 70</a>, regarding reference types and array types. Alisdair concerned that Destructible sounds like something that goes out of scope, maybe this concept is really describing Deletable.</ednote></blockquote>
 
-<ednote>We took this as guidance to make `Destructible` behave more like the type traits with regard to "strange" types like references and arrays. We also dropped the requirement for dynamic [array] deallocation. We keep the requirement for a sane address-of operation since we recall previously receiving guidance from the committee to do so (although the notes don't seem to reflect this). We additionally require that destructors are marked `noexcept` since `noexcept` clauses throughout the standard and the Ranges TS tacitly assume it, and because sane implementations require it.]</ednote>
+<ednote>We took this as guidance to make `Destructible` behave more like the type traits with regard to "strange" types like references and arrays. We also dropped the requirement for dynamic [array] deallocation. Per discussion in Kona 2016, we drop the requirement for a sane address-of operation. We require that destructors are marked `noexcept` since `noexcept` clauses throughout the standard and the Ranges TS tacitly assume it, and because sane implementations require it.]</ednote>
 
 <ednote>[_Editor's note:_ Move subsection "Concept `Constructible`" ([concepts.lib.object.constructible]) to subsection "Core language concepts" ([concepts.lib.corelang]) after [concepts.lib.corelang.destructible], change its stable id to [concepts.lib.corelang.constructible] and edit it as follows:]</ednote>
 
@@ -225,8 +222,8 @@ In the "Proposed Resolution" that follows, there are editorial notes that highli
 
 > > <tt>template &lt;class T&gt;</tt>
 > > <tt>concept bool MoveConstructible() {</tt>
-> > <tt>&nbsp;&nbsp;return Constructible&lt;T, <del>remove_cv_t&lt;</del>T<del>&gt;</del>&amp;&amp;&gt;() &amp;&amp;</tt>
-> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;ConvertibleTo&lt;<del>remove_cv_t&lt;</del>T<del>&gt;</del>&amp;&amp;, T&gt;();</tt>
+> > <tt>&nbsp;&nbsp;return Constructible&lt;T, <del>remove_cv_t&lt;</del>T<del>&gt;&amp;&amp;</del>&gt;() &amp;&amp;</tt>
+> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;ConvertibleTo&lt;<del>remove_cv_t&lt;</del>T<del>&gt;&amp;&amp;</del>, T&gt;();</tt>
 > > <tt>}</tt>
 >
 > 1 <ins>If `T` is an object type, then</ins> let `rv` be an rvalue of type <del>`remove_cv_t<`</del>`T`<del>`>`</del><ins> and `u2` a distinct object of type `T` equal to `rv`</ins>. <del>Then</del> `MoveConstructible<T>()` is satisfied if and only if
@@ -252,7 +249,7 @@ In the "Proposed Resolution" that follows, there are editorial notes that highli
 > > <tt>&nbsp;&nbsp;&nbsp;&nbsp;<del>ConvertibleTo&lt;const remove_cv_t&lt;T&gt;&amp;&amp;, T&gt;();</del></tt>
 > > <tt>&nbsp;&nbsp;&nbsp;&nbsp;<ins>Constructible&lt;T, T&amp;&gt;() &amp;&amp; ConvertibleTo&lt;T&amp;, T&gt;() &amp;&amp;</ins></tt>
 > > <tt>&nbsp;&nbsp;&nbsp;&nbsp;<ins>Constructible&lt;T, const T&amp;&gt;() &amp;&amp; ConvertibleTo&lt;const T&amp;, T&gt;() &amp;&amp;</ins></tt>
-> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;<ins>Constructible&lt;T, const T&amp;&amp;&gt;() &amp;&amp; ConvertibleTo&lt;const T&amp;&amp;, T&gt;();</ins></tt>
+> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;<ins>Constructible&lt;T, const T&gt;() &amp;&amp; ConvertibleTo&lt;const T, T&gt;();</ins></tt>
 > > <tt>}</tt>
 >
 > 1 <ins>If `T` is an object type, then</ins> let `v` be an lvalue of type (possibly `const`) <del>`remove_cv_t<`</del>`T`<del>`>`</del> or an rvalue of type `const` <del>`remove_cv_t<`</del>`T`<del>`>`</del>. <del>Then</del> `CopyConstructible<T>()` is satisfied if and only if
@@ -279,6 +276,39 @@ In the "Proposed Resolution" that follows, there are editorial notes that highli
 > &#8203;<ins>1 There need not be any subsumption relationship between `Movable<T>()` and `is_object<T>::value`.
 
 <ednote>[_Editor's note:_ `Movable` is the base concept of the `Regular` hierarchy. These concepts are concerned with value semantics. As such, it makes no sense for `Movable<int&&>()` to return `true` ([stl2#310](https://github.com/ericniebler/stl2/issues/310)). We add the requirement that `T` is an object type to resolve the issue. Since `Movable` is subsumed by `Copyable`, `Semiregular`, and `Regular`, these concepts will only ever by satisfied by object types.]</ednote>
+
+<ednote>[_Editor's note:_ Edit subsection "Concept `Readable`" ([iterators.readable]) as follows (also includes the fix for [stl2#330](https://github.com/ericniebler/stl2/issues/330) and [stl2#399](https://github.com/ericniebler/stl2/issues/399)):]</ednote>
+
+> > <tt>template &lt;class I<ins>n</ins>&gt;</tt>
+> > <tt>concept bool Readable() {</tt>
+> > <tt>&nbsp;&nbsp;<del>return Movable&lt;I&gt;() &amp; DefaultConstructible&lt;I&gt;() &amp;&amp;</del></tt>
+> > <tt>&nbsp;&nbsp;<ins>return </ins>requires<del>(const I&amp; i)</del> {</tt>
+> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;typename value_type_t&lt;I<ins>n</ins>&gt;;</tt>
+> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;typename reference_t&lt;I<ins>n</ins>&gt;;</tt>
+> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;typename rvalue_reference_t&lt;I<ins>n</ins>&gt;;</tt>
+> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;<del>{ \*i } -&gt; Same&lt;reference_t&lt;I&gt;&gt;;</del></tt>
+> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;<del>{ ranges::iter_move(i) } -&gt; Same&lt;rvalue_reference_t&lt;I&gt;&gt;;</del></tt>
+> > <tt>&nbsp;&nbsp;} &amp;&amp;</tt>
+> > <tt>&nbsp;&nbsp;CommonReference&lt;reference_t&lt;I<ins>n</ins>&gt;<ins>&amp;&amp;</ins>, value_type_t&lt;I<ins>n</ins>&gt;&amp;&gt;() &amp;&amp;</tt>
+> > <tt>&nbsp;&nbsp;CommonReference&lt;reference_t&lt;I<ins>n</ins>&gt;<ins>&amp;&amp;</ins>, rvalue_reference_t&lt;I<ins>n</ins>&gt;<ins>&amp;&amp;</ins>&gt;() &amp;&amp;</tt>
+> > <tt>&nbsp;&nbsp;CommonReference&lt;rvalue_reference_t&lt;I<ins>n</ins>&gt;<ins>&amp;&amp;</ins>, const value_type_t&lt;I<ins>n</ins>&gt;&amp;&gt;();</tt>
+> > <tt>}</tt>
+
+<ednote>[_Editor's note:_ Edit subsection "Concept `Writable`" ([iterators.writable]) as follows (also includes the fixes for [stl2#381](https://github.com/ericniebler/stl2/issues/381) and [stl2#387](https://github.com/ericniebler/stl2/issues/387)):]</ednote>
+
+> > <tt>template &lt;class Out, class T&gt;</tt>
+> > <tt>concept bool Writable() {</tt>
+> > <tt>&nbsp;&nbsp;return <del>Movable&lt;Out&gt;() &amp; DefaultConstructible&lt;Out&gt;() &amp;&amp;</del></tt>
+> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;requires(Out<ins>&amp;&amp;</ins> o, T&& t) {</tt>
+> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\*o = std::forward&lt;T&gt;(t); // not required to be equality preserving</tt>
+> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<ins>\*std::forward&lt;Out&gt;(o) = std::forward&lt;T&gt;(t); // not required to be equality preserving</ins></tt>
+> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<ins>const_cast&lt;const reference_t&lt;Out&gt;&amp;&amp;&gt;(\*o) =</ins></tt>
+> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<ins>std::forward&lt;T&gt;(t); // not required to be equality preserving</ins></tt>
+> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<ins>const_cast&lt;const reference_t&lt;Out&gt;&amp;&amp;&gt;(\*std::forward&lt;Out&gt;(o)) =</ins></tt>
+> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<ins>std::forward&lt;T&gt;(t); // not required to be equality preserving</ins></tt>
+> > <tt>&nbsp;&nbsp;&nbsp;&nbsp;};</tt>
+> > <tt>}</tt>
+
 
 # Acknowledgements
 

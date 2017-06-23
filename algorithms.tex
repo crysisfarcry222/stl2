@@ -1262,6 +1262,12 @@ times.
 \pnum
 \notes
 If \tcode{f} returns a result, the result is ignored.
+
+\pnum
+\enternote The requirements of this algorithm are more strict than those
+specified in \cxxref{alg.foreach}. This algorithm requires \tcode{Fun} to
+satisfy \tcode{CopyConstructible}, whereas the algorithm in the \Cpp Standard
+requires only \tcode{MoveConstructible}. \exitnote
 \end{itemdescr}
 
 \rSec2[alg.find]{Find}
@@ -2872,7 +2878,7 @@ are both true.
 \tcode{none_of(mid, last, pred, proj)} are both true.
 
 \pnum
-\complexity \bigoh{log(last - first)} applications of \tcode{pred} and \tcode{proj}.
+\complexity \bigoh{\log(\tcode{last - first})} applications of \tcode{pred} and \tcode{proj}.
 \end{itemdescr}
 
 
@@ -4256,7 +4262,7 @@ otherwise.
 \complexity
 At most
 \tcode{2*min((last1 - first1), (last2 - first2))}
-applications of the corresponding comparison and projection.
+applications of the corresponding comparison and projections.
 
 \pnum
 \notes

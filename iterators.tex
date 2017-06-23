@@ -616,12 +616,12 @@ namespace std { namespace experimental { namespace ranges { inline namespace v1 
 
 namespace std {
   // \ref{iterator.stdtraits}, iterator traits:
-  template <experimental::ranges::Iterator I>
-    struct iterator_traits;
-  template <experimental::ranges::InputIterator I>
-    struct iterator_traits;
-  template <experimental::ranges::InputIterator I>
-      requires experimental::ranges::Sentinel<I, I>()
+  template <experimental::ranges::Iterator Out>
+    struct iterator_traits<Out>;
+  template <experimental::ranges::InputIterator In>
+    struct iterator_traits<In>;
+  template <experimental::ranges::InputIterator In>
+      requires experimental::ranges::Sentinel<In, In>()
     struct iterator_traits;
 }
 \end{codeblock}
@@ -1522,6 +1522,7 @@ objects~(\cxxref{func.require}) as arguments.
 The indirect callable concepts are used to constrain those algorithms that accept
 callable objects~(\cxxref{func.def}) as arguments.
 
+\indexlibrary{\idxcode{indirect_result_of}}%
 \indexlibrary{\idxcode{IndirectInvocable}}%
 \indexlibrary{\idxcode{IndirectRegularInvocable}}%
 \indexlibrary{\idxcode{IndirectPredicate}}%
@@ -1616,6 +1617,13 @@ callable objects~(\cxxref{func.def}) as arguments.
       StrictWeakOrder<F&, reference_t<I1>, reference_t<I2>>() &&
       StrictWeakOrder<F&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>();
   }
+
+  template <class> struct indirect_result_of { };
+
+  template <class F, class... Is>
+    requires IndirectInvocable<decay_t<F>, Is...>()
+  struct indirect_result_of<F(Is...)> :
+    result_of<F(reference_t<Is>...)> { };
 \end{codeblock}
 
 \rSec2[projected]{Class template \tcode{projected}}
@@ -6276,7 +6284,7 @@ implies reference semantics. \exitnote
 
 \pnum
 The \tcode{BoundedRange} concept specifies requirements
-of an \tcode{Range} type for which \tcode{begin} and \tcode{end} return objects of
+of a \tcode{Range} type for which \tcode{begin} and \tcode{end} return objects of
 the same type. \enternote The standard containers~(\cxxref{containers})
 satisfy \tcode{BoundedRange}.\exitnote
 
